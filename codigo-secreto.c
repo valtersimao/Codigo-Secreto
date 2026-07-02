@@ -1,3 +1,6 @@
+//Valter dos Santos Simao Junior
+//Mat: 26.1.4147
+
 #include <stdio.h>
 #include <string.h>
 
@@ -15,9 +18,9 @@ typedef struct {
     int numTentativas;
     int tentativas[8][8];
 
-}Jogo;
+}Jogo; //jogo em uma struct
 
-void salvar(Jogo jogo) {
+void salvarJogo(Jogo jogo) { //salvar jogo em um arquivo binario
     char nome[100];
     printf("Insira o nome do arquivo: ");
     scanf("%s", nome);
@@ -28,8 +31,26 @@ void salvar(Jogo jogo) {
 
     fwrite(&jogo, sizeof(Jogo), 1, arq);
     fclose(arq);
+}
 
+Jogo carregarJogo() { //ler um arquivo binario e retorna o jogo
+    char nome[100];
+    printf("Insira o nome do arquivo: ");
+    scanf("%s", nome);
 
+    strcat(nome, ".cor");
+
+    FILE * arq = fopen(nome, "rb");
+
+    if (arq == NULL) {
+        printf("Arquivo inválido!");
+        //return NULL;
+    }
+
+    Jogo jogo;
+    fread(&jogo, sizeof(Jogo), 1, arq);
+    fclose(arq);
+    return jogo;
 }
 
 void menu() {
@@ -69,7 +90,7 @@ void menu() {
         //ajuda
         break;
 
-    default:
+    default: //caso insira nenhuma opção válida retorna para o inicio do menu
         printf("\n-------------------------\n");
         printf("Comando Inválido!\nTente novamente!\n");
         menu();
@@ -78,16 +99,29 @@ void menu() {
 }
 
 int main() {
-    //menu();
-    Jogo novo = {
+    menu();
+    /*Jogo novo = {
         "Jogo 1",
         1,
         {VERDE, VERDE, VERMELHO, AZUL},
-        1,
-        {AMARELO,VERDE,AZUL,AZUL}
-    };
+        3,
+        {{AMARELO,VERDE,AZUL,AZUL},{VERDE,AZUL,AMARELO,VERMELHO},{AMARELO,VERMELHO,VERDE,AZUL}}
+    };*/
 
-    salvar(novo);
+    //Jogo novo = carregarJogo();
+    //printf("%s\n%d\n", novo.nome, novo.dificuldade);
+
+    /*for (int i = 0; i < novo.numTentativas; i++)
+    {
+        for (int j = 0; j < novo.dificuldade + 3; j++)
+        {
+            printf("[%d]", novo.tentativas[i][j]);
+        }
+        printf("\n");
+        
+    }*/
+    
+    //salvarJogo(novo);
 
 
     return 0;
