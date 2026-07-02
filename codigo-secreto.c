@@ -76,6 +76,7 @@ void menu() {
         break;
     case 'N':
         //novo jogo
+        
         break;
     case 'C':
         //carregar jogo
