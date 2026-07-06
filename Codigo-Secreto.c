@@ -73,7 +73,7 @@ int main() { //FUNÇÃO ATÉ ENTÃO PARA TESTES
     };*/
     iniciarNovoJogo();
 
-    Jogo novo = carregarJogo();
+    Jogo novo = carregarArquivoJogo();
     printf("%s\n%d\n", novo.nome, novo.dificuldade);
 
     for (int i = 0; i < novo.dificuldade + 3; i++)

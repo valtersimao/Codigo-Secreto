@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-void salvarJogo(Jogo jogo) { //salvar jogo em um arquivo binario
+void salvarArquivoJogo(Jogo jogo) { //salvar jogo em um arquivo binario
     char nome[100];
     printf("Insira o nome do arquivo: ");
     scanf("%s", nome);
@@ -19,10 +19,10 @@ void salvarJogo(Jogo jogo) { //salvar jogo em um arquivo binario
     FILE * arq = fopen(nome, "wb");
     fwrite(&jogo, sizeof(Jogo), 1, arq);
     fclose(arq);
-    printf("Jogo salvo com sucesso!\n");
+    printf("Arquivo de jogo salvo com sucesso!\n");
 }
 
-Jogo carregarJogo() { //ler um arquivo binario e retorna o jogo
+Jogo carregarArquivoJogo() { //ler um arquivo binario e retorna o jogo
     char nome[100];
     printf("Insira o nome do arquivo: ");
     scanf("%s", nome);
@@ -65,6 +65,19 @@ void iniciarNovoJogo() { //TODO
 
     jogo.dificuldade = dificuldade;
     jogo.tamSequencia = jogo.dificuldade + 3; ///Dificuldade varia de 1 a 3 e as cores de 4 a 6, logo cores = dificuldade + 3
+
+    switch (dificuldade) {
+        case 1:
+            jogo.tentativasMax = 10;
+            break;
+        case 2:
+            jogo.tentativasMax = 12;
+            break;
+        case 3:
+            jogo.tentativasMax = 15;
+            break;
+
+    }
     
     //alocar dinamicamente a sequencia correta e o historico
     jogo.sequenciaCorreta = malloc((jogo.tamSequencia) * sizeof(int)); //PERGUNTAR: Uso (int *) (cast) ou nao?
@@ -81,7 +94,7 @@ void iniciarNovoJogo() { //TODO
     jogo.numTentativas = 0;
 
     //todo
-    salvarJogo(jogo);
+    salvarArquivoJogo(jogo);
 
 }
 
@@ -106,4 +119,20 @@ Acertos verificaSequencia(Jogo jogo) {
 
     return acertos;
 
+}
+
+bool verificaVitoria(Jogo jogo) {
+    //se na ultima tentativa realizada do jogador tiver o tamanho maximo, entao ele acertou tudo e ganhou
+    if(jogo.historicoAcertos[jogo.numTentativas - 1].posicaoCerta = jogo.tamSequencia)
+        return true;
+    else
+        return false; //ainda na ganhou o jogo
+}
+bool verificaDerrota(Jogo jogo) {
+
+    if (jogo.numTentativas >= jogo.tentativasMax)
+        return true; //perdeu playboy
+    else
+        return false;
+    
 }
