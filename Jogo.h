@@ -37,6 +37,8 @@ bool verificaVitoria(Jogo);
 
 bool verificaDerrota(Jogo);
 
+void imprimirHistorico(Jogo);
+
 void jogar(Jogo);
 
 //TODO criar funcao pra jogar de verdade

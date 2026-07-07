@@ -23,7 +23,8 @@ void salvarArquivoJogo(Jogo jogo) { //salvar jogo em um arquivo binario
     printf("Arquivo de jogo salvo com sucesso!\n");
 }
 
-void carregarArquivoJogo() { //ler um arquivo binario e retorna o jogo
+void carregarArquivoJogo() { //ler um arquivo binario e retorna o jogo 
+    //ta bugando em algo
     char nome[100];
     FILE * arq;
 
@@ -43,10 +44,11 @@ void carregarArquivoJogo() { //ler um arquivo binario e retorna o jogo
     fread(&jogo, sizeof(Jogo), 1, arq);
     fclose(arq);
     printf("Arquivo carregado com sucesso!\n");
+    
     jogar(jogo);
 }
 
-void iniciarNovoJogo() { //TODO
+void iniciarNovoJogo() {
     Jogo jogo;
     srand(time(NULL));
 
@@ -159,6 +161,34 @@ bool verificaDerrota(Jogo jogo) {
     
 }
 
+void imprimirHistorico(Jogo jogo) {
+    if(jogo.numTentativas > 0) {
+        printf("\n" BOLD("Resultado:") "\n");
+        for (int i = 0; i < jogo.numTentativas; i++)
+        {
+            printf("Rodada %d:  ", i+1);
+            for (int j = 0; j < jogo.tamSequencia; j++)
+                printf("%d ", jogo.tentativas[i][j]);
+            printf("(");
+
+            for (int j = 0; j < jogo.historicoAcertos[i].posicaoCerta; j++) {
+                printf(BG_GREEN(" C "));
+            }
+
+            for (int j = 0; j < jogo.historicoAcertos[i].posicaoErrada; j++) {
+                printf(BG_YELLOW(" E "));
+            }
+
+            for (int j = 0; j < jogo.historicoAcertos[i].erros; j++) {
+                printf(BG_RED(" - "));
+            }
+                
+            printf(")\n");
+        }
+    }
+
+}
+
 void jogar(Jogo jogo) {
     printf("\n" BOLD("CORES DISPONÍVEIS:") "\n");
 
@@ -167,8 +197,38 @@ void jogar(Jogo jogo) {
     printf(BG_GREEN("3 - Verde     ") "\n");
     printf(BG_YELLOW("4 - Amarelo   ") "\n");
     printf(BG_MAGENTA("5 - Roxo      ") "\n");
-    printf(BG_ORANGE("6 - Laranja   ") "\n\n");
-    /*do{
+    printf(BG_ORANGE("6 - Laranja   ") "\n");
+
+    do{
+        jogo.numTentativas++;
+
+        printf("\nTentativa %d de %d\n", jogo.numTentativas, jogo.tentativasMax);
+        printf("Digite %d cores: ", jogo.tamSequencia);
+
+        for (int i = 0; i < jogo.tamSequencia; i++)
+        {
+            do {
+                scanf("%d", &jogo.tentativas[jogo.numTentativas - 1][i]);
+                if(jogo.tentativas[jogo.numTentativas - 1][i] > 6 ||
+                    jogo.tentativas[jogo.numTentativas - 1][i] < 1)
+                    printf("%d é um número inválido! Digite outra cor: ", jogo.tentativas[jogo.numTentativas - 1][i]);
+            } while(jogo.tentativas[jogo.numTentativas - 1][i] > 6 ||
+                    jogo.tentativas[jogo.numTentativas - 1][i] < 1);
+        }
+
+        jogo.historicoAcertos[jogo.numTentativas - 1] = verificaSequencia(jogo);
         
-    }while(!verificaDerrota(jogo));*/
+        imprimirHistorico(jogo);
+    
+        if(verificaVitoria(jogo)) {
+            printf("Parabéns, %s! Você ganhou!\n",jogo.nome);
+            return;
+        }
+
+    }while(!verificaDerrota(jogo));
+
+    printf("Você excedeu o limite de tentativas!\nFim de jogo!\n");
+    return;
+
+
 }

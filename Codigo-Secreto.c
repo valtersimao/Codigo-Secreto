@@ -34,12 +34,12 @@ void menu() {
     case 'X': //TODO
         //sair
         break;
-    case 'N': //DOING
+    case 'N':
         iniciarNovoJogo();
         break;
-    case 'C': //FEITO PELA METADE
+    case 'C':
         carregarArquivoJogo();
-        //criar a struct do Jogo com o arquivo carregado e continuar de onde parou
+        //BUG BUG BUG ("")
         break;
     case 'S': //FEITO MAROMENOS
         //salvar
