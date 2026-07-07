@@ -2,6 +2,7 @@
 //Mat: 26.1.4147
 
 #include "Utilidades.h"
+#include <stdlib.h>
 
 int verificarExistenciaNoVetor(int num, int vet[], int tam) {
     //caso o numero exista no vetor retorna 1, se nao 0;
@@ -15,4 +16,13 @@ int verificarExistenciaNoVetor(int num, int vet[], int tam) {
     }
     return 0;
     
+}
+
+int ** criaMatriz(int n, int m) {
+    int **matriz;
+    matriz = malloc(n *sizeof(int*));
+    for (int i = 0; i < n; i++) {
+        matriz[i] = malloc(m * sizeof(int));
+    }
+    return matriz;
 }

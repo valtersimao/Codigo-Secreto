@@ -5,19 +5,16 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <ctype.h> 
 
+#include "Utilidades.h"
 #include "Jogo.h"
 
-#define VERMELHO 1
-#define AZUL 2
-#define VERDE 3
-#define AMARELO 4
-#define ROXO 5
-#define LARANJA 6
+void comoJogar();
 
 void menu() {
     printf("-------------------------\n");
-    printf("   JOGO CÓDIGO SECRETO   \n");
+    printf(BOLD("   JOGO CÓDIGO SECRETO   ") "\n");
     printf("-------------------------\n");
     printf("MENU PRINCIPAL\n");
     printf("X   Sair\n");
@@ -30,6 +27,7 @@ void menu() {
     char op;
     printf("\nInsira o comando desejado: ");
     scanf(" %c", &op);
+    op = toupper(op);
 
     switch (op)
     {
@@ -40,7 +38,7 @@ void menu() {
         iniciarNovoJogo();
         break;
     case 'C': //FEITO PELA METADE
-        //carregar jogo
+        carregarArquivoJogo();
         //criar a struct do Jogo com o arquivo carregado e continuar de onde parou
         break;
     case 'S': //FEITO MAROMENOS
@@ -51,7 +49,7 @@ void menu() {
         //ranking
         break;
     case 'A': //TODO
-        //ajuda
+        comoJogar();
         break;
 
     default: //caso insira nenhuma opção válida retorna para o inicio do menu
@@ -62,28 +60,11 @@ void menu() {
 
 }
 
+void comoJogar() {
+    printf("Fingir que ta ensinando a jogar \nbla bla blal \nlorum ispsdldfds lsaajff\n");
+}
+
 int main() { //FUNÇÃO ATÉ ENTÃO PARA TESTES
-    //menu();
-    /*Jogo novo = {
-        "Jogo 1",
-        1,
-        {VERDE, VERDE, VERMELHO, AZUL},
-        3,
-        {{AMARELO,VERDE,AZUL,AZUL},{VERDE,AZUL,AMARELO,VERMELHO},{AMARELO,VERMELHO,VERDE,AZUL}}
-    };*/
-    iniciarNovoJogo();
-
-    Jogo novo = carregarArquivoJogo();
-    printf("%s\n%d\n", novo.nome, novo.dificuldade);
-
-    for (int i = 0; i < novo.dificuldade + 3; i++)
-    {
-        printf("[%d]", novo.sequenciaCorreta[i]);        
-    }
-    printf("\n");
-    
-    //salvarJogo(novo);
-
-
+    menu();
     return 0;
 }

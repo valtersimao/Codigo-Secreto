@@ -19,13 +19,15 @@ typedef struct {
     int * sequenciaCorreta;
     int tentativasMax;
     int numTentativas;
-    int tentativas[100][100]; //TODO -> Alocar dinamicamente
+    int ** tentativas;
     Acertos *historicoAcertos;
 } Jogo; //jogo em uma struct
 
 void salvarArquivoJogo(Jogo);
 
-Jogo carregarArquivoJogo();
+void carregarArquivoJogo();
+
+void carregarJogo();
 
 void iniciarNovoJogo();
 
@@ -34,6 +36,8 @@ Acertos verificaSequencia(Jogo);
 bool verificaVitoria(Jogo);
 
 bool verificaDerrota(Jogo);
+
+void jogar(Jogo);
 
 //TODO criar funcao pra jogar de verdade
 

@@ -8,10 +8,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <ctype.h>
 
 void salvarArquivoJogo(Jogo jogo) { //salvar jogo em um arquivo binario
     char nome[100];
-    printf("Insira o nome do arquivo: ");
+    printf("Insira o nome do arquivo que deseja salvar: ");
     scanf("%s", nome);
 
     strcat(nome, ".cor");
@@ -22,29 +23,34 @@ void salvarArquivoJogo(Jogo jogo) { //salvar jogo em um arquivo binario
     printf("Arquivo de jogo salvo com sucesso!\n");
 }
 
-Jogo carregarArquivoJogo() { //ler um arquivo binario e retorna o jogo
+void carregarArquivoJogo() { //ler um arquivo binario e retorna o jogo
     char nome[100];
-    printf("Insira o nome do arquivo: ");
-    scanf("%s", nome);
+    FILE * arq;
 
-    strcat(nome, ".cor");
+    do{
+        printf("Insira o nome do arquivo do jogo: ");
+        scanf("%s", nome);
 
-    FILE * arq = fopen(nome, "rb");
+        strcat(nome, ".cor");
 
-    if (arq == NULL) {
-        printf("Arquivo inválido!");
-        //return NULL;
-    }
+        arq = fopen(nome, "rb");
+
+        if (arq == NULL) 
+            printf("Arquivo inválido!");
+    }while(arq == NULL);
 
     Jogo jogo;
     fread(&jogo, sizeof(Jogo), 1, arq);
     fclose(arq);
-    return jogo;
+    printf("Arquivo carregado com sucesso!\n");
+    jogar(jogo);
 }
 
 void iniciarNovoJogo() { //TODO
     Jogo jogo;
     srand(time(NULL));
+
+    printf("\n" BOLD("NOVO JOGO") "\n");
 
     char nome[100]; //nome
     printf("Insira o nome do jogador: ");
@@ -53,7 +59,7 @@ void iniciarNovoJogo() { //TODO
 
     int dificuldade; //dificuldade
     do{
-        printf("\n DIFICULDADES: \n");
+        printf("\n" BOLD("DIFICULDADE") "\n");
         printf("1 - Fácil (4 cores, 10 tentativas)\n");
         printf("2 - Médio (5 cores, 12 tentativas)\n");
         printf("3 - Difícil (6 cores, 15 tentativas)\n");
@@ -76,8 +82,8 @@ void iniciarNovoJogo() { //TODO
         case 3:
             jogo.tentativasMax = 15;
             break;
-
     }
+    jogo.tentativas = criaMatriz(jogo.tentativasMax, jogo.tamSequencia);
     
     //alocar dinamicamente a sequencia correta e o historico
     jogo.sequenciaCorreta = malloc((jogo.tamSequencia) * sizeof(int)); //PERGUNTAR: Uso (int *) (cast) ou nao?
@@ -93,9 +99,25 @@ void iniciarNovoJogo() { //TODO
 
     jogo.numTentativas = 0;
 
-    //todo
-    salvarArquivoJogo(jogo);
+    printf("\nNovo jogo criado! ");
+    char op;
+    do{
+        printf("Você deseja salvá-lo em um arquivo antes de inicar? (s/n) ");
+        scanf(" %c", &op);
+        op = toupper(op);
+        if(op != 'S' && op != 'N')
+            printf("Resposta Inválida!\n");
+    } while (op != 'S' && op != 'N');
 
+    switch (op)
+    {
+        case 'S':
+            salvarArquivoJogo(jogo);
+        case 'N':
+            printf("Ótimo! Vamos jogar!\n");
+            jogar(jogo);
+            break;
+    }
 }
 
 Acertos verificaSequencia(Jogo jogo) {
@@ -123,7 +145,7 @@ Acertos verificaSequencia(Jogo jogo) {
 
 bool verificaVitoria(Jogo jogo) {
     //se na ultima tentativa realizada do jogador tiver o tamanho maximo, entao ele acertou tudo e ganhou
-    if(jogo.historicoAcertos[jogo.numTentativas - 1].posicaoCerta = jogo.tamSequencia)
+    if(jogo.historicoAcertos[jogo.numTentativas - 1].posicaoCerta == jogo.tamSequencia)
         return true;
     else
         return false; //ainda na ganhou o jogo
@@ -135,4 +157,18 @@ bool verificaDerrota(Jogo jogo) {
     else
         return false;
     
+}
+
+void jogar(Jogo jogo) {
+    printf("\n" BOLD("CORES DISPONÍVEIS:") "\n");
+
+    printf(BG_RED("1 - Vermelho  ") "\n");
+    printf(BG_BLUE("2 - Azul      ") "\n");
+    printf(BG_GREEN("3 - Verde     ") "\n");
+    printf(BG_YELLOW("4 - Amarelo   ") "\n");
+    printf(BG_MAGENTA("5 - Roxo      ") "\n");
+    printf(BG_ORANGE("6 - Laranja   ") "\n\n");
+    /*do{
+        
+    }while(!verificaDerrota(jogo));*/
 }
