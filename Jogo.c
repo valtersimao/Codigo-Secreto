@@ -10,15 +10,45 @@
 #include <time.h>
 #include <ctype.h>
 
-void salvarArquivoJogo(Jogo jogo) { //salvar jogo em um arquivo binario
+void salvarJogo(Jogo jogo) { //salvar jogo em um arquivo binario
     char nome[100];
     printf("Insira o nome do arquivo que deseja salvar: ");
     scanf("%s", nome);
 
     strcat(nome, ".cor");
 
-    FILE * arq = fopen(nome, "wb");
-    fwrite(&jogo, sizeof(Jogo), 1, arq);
+    FILE * arq = fopen(nome, "w");
+
+    fprintf(arq, "%s\n", jogo.nome);
+
+    char dif;
+    switch (jogo.dificuldade)
+    {
+        case 1:
+            dif = 'F';
+            break;
+        case 2:
+            dif = 'M';
+            break;
+        case 3:
+            dif = 'D';
+            break;
+    }
+    fprintf(arq, "%c\n", dif);
+
+    for(int i = 0; i < jogo.tamSequencia; i++) {
+        fprintf(arq, "%d ", jogo.sequenciaCorreta[i]);
+    }
+
+    fprintf(arq, "\n%d\n", jogo.numTentativas);
+    for (int i = 0; i < jogo.numTentativas; i++)
+    {
+        for(int j = 0; j < jogo.tamSequencia; j++) {
+            fprintf(arq, "%d ", jogo.tentativas[i][j]);
+        }
+        fprintf(arq,"\n");
+    }
+    
     fclose(arq);
     printf("Arquivo de jogo salvo com sucesso!\n");
 }
@@ -34,7 +64,7 @@ void carregarArquivoJogo() { //ler um arquivo binario e retorna o jogo
 
         strcat(nome, ".cor");
 
-        arq = fopen(nome, "rb");
+        arq = fopen(nome, "r");
 
         if (arq == NULL) 
             printf("Arquivo inválido!");
@@ -114,7 +144,7 @@ void iniciarNovoJogo() {
     switch (op)
     {
         case 'S':
-            salvarArquivoJogo(jogo);
+            salvarJogo(jogo);
         case 'N':
             printf("Ótimo! Vamos jogar!\n");
             jogar(jogo);
@@ -161,16 +191,43 @@ bool verificaDerrota(Jogo jogo) {
     
 }
 
-void imprimirHistorico(Jogo jogo) {
+void imprimeCor(int cor) {
+    switch (cor)
+    {
+        case VERMELHO:
+            printf(" " BG_RED(" 1 ") " ");
+            break;
+        case AZUL:
+            printf(" " BG_BLUE(" 2 ") " ");
+            break;
+        case VERDE:
+            printf(" " BG_GREEN(" 3 ") " ");
+            break;
+        case AMARELO:
+            printf(" " BG_YELLOW(" 4 ") " ");
+            break;
+        case ROXO:
+            printf(" " BG_MAGENTA(" 5 ") " ");
+            break;
+        case LARANJA:
+            printf(" " BG_ORANGE(" 6 ") " ");
+            break;    
+        default:
+            break;
+    }
+
+}
+
+void imprimeHistorico(Jogo jogo) {
     if(jogo.numTentativas > 0) {
         printf("\n" BOLD("Resultado:") "\n");
         for (int i = 0; i < jogo.numTentativas; i++)
         {
-            printf("Rodada %d:  ", i+1);
+            printf("Rodada %2d: ", i+1);
             for (int j = 0; j < jogo.tamSequencia; j++)
-                printf("%d ", jogo.tentativas[i][j]);
-            printf("(");
+                imprimeCor(jogo.tentativas[i][j]);
 
+            printf(" -> (");
             for (int j = 0; j < jogo.historicoAcertos[i].posicaoCerta; j++) {
                 printf(BG_GREEN(" C "));
             }
@@ -218,7 +275,7 @@ void jogar(Jogo jogo) {
 
         jogo.historicoAcertos[jogo.numTentativas - 1] = verificaSequencia(jogo);
         
-        imprimirHistorico(jogo);
+        imprimeHistorico(jogo);
     
         if(verificaVitoria(jogo)) {
             printf("Parabéns, %s! Você ganhou!\n",jogo.nome);

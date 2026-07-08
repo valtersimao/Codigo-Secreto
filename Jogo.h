@@ -23,7 +23,7 @@ typedef struct {
     Acertos *historicoAcertos;
 } Jogo; //jogo em uma struct
 
-void salvarArquivoJogo(Jogo);
+void salvarJogo(Jogo);
 
 void carregarArquivoJogo();
 
@@ -37,7 +37,9 @@ bool verificaVitoria(Jogo);
 
 bool verificaDerrota(Jogo);
 
-void imprimirHistorico(Jogo);
+void imprimeCor(int);
+
+void imprimeHistorico(Jogo);
 
 void jogar(Jogo);
 
