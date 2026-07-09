@@ -25,17 +25,17 @@ typedef struct {
 
 int menu(Jogo *);
 
+void verificaJogoEmAndamento(Jogo *);
+
 void comoJogar();
 
 void salvarJogo(Jogo);
-
-void carregarArquivoJogo();
 
 void carregarJogo();
 
 void iniciarNovoJogo();
 
-Acertos verificaSequencia(Jogo);
+Acertos verificaSequencia(Jogo, int i);
 
 bool verificaVitoria(Jogo);
 

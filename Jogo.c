@@ -32,51 +32,19 @@ int menu(Jogo * jogo) {
 
     switch (op)
     {
-    case 'X': //TODO
-        if(jogo != NULL) {
-            do{
-                printf("Existe um jogo em andamento!\nVocê deseja salvar? (s/n)");
-                scanf(" %c", &op);
-                op = toupper(op);
-                if(op != 'S' && op != 'N')
-                    printf("Resposta Inválida!\n");
-            } while (op != 'S' && op != 'N');      
-            
-            switch (op)
-            {
-                case 'S':
-                    salvarJogo(*jogo);
-                case 'N':
-                    printf("Tchau!\n");
-                    finalizarJogo(*jogo);
-            }
-        }
+    case 'X':
+        verificaJogoEmAndamento(jogo);
+        printf("Tchau!\n");
         return 0;
         break;
     case 'N':
-        if(jogo != NULL) {
-            do{
-                printf("Existe um jogo em andamento!\nVocê deseja salvar? (s/n) ");
-                scanf(" %c", &op);
-                op = toupper(op);
-                if(op != 'S' && op != 'N')
-                    printf("Resposta Inválida!\n");
-            } while (op != 'S' && op != 'N');      
-            
-            switch (op)
-            {
-                case 'S':
-                    salvarJogo(*jogo);
-                case 'N':
-                    finalizarJogo(*jogo);
-            }
-        }
+        verificaJogoEmAndamento(jogo);
         iniciarNovoJogo();
         return 0;
         break;
     case 'C':
-        carregarArquivoJogo();
-        //BUG BUG BUG ("")
+        verificaJogoEmAndamento(jogo);
+        carregarJogo();
         break;
     case 'S':
         if(jogo != NULL) {
@@ -169,7 +137,28 @@ void comoJogar() {
     printf("-------------------------------------------------\n");
 }
 
-void salvarJogo(Jogo jogo) { //salvar jogo em um arquivo binario
+void verificaJogoEmAndamento(Jogo * jogo) {
+    char op;
+    if(jogo != NULL) {
+        do{
+            printf("Existe um jogo em andamento!\nVocê deseja salvar? (s/n) ");
+            scanf(" %c", &op);
+            op = toupper(op);
+            if(op != 'S' && op != 'N')
+                printf("Resposta Inválida!\n");
+        } while (op != 'S' && op != 'N');      
+            
+        switch (op)
+        {
+            case 'S':
+                salvarJogo(*jogo);
+            case 'N':
+                finalizarJogo(*jogo);
+        }
+    }
+}
+
+void salvarJogo(Jogo jogo) { //salvar jogo em um arquivo texto
     char nome[100];
     printf("Insira o nome do arquivo que deseja salvar: ");
     scanf("%s", nome);
@@ -213,7 +202,7 @@ void salvarJogo(Jogo jogo) { //salvar jogo em um arquivo binario
     printf("Arquivo de jogo salvo com sucesso!\n");
 }
 
-void carregarArquivoJogo() { //ler um arquivo binario e retorna o jogo 
+void carregarJogo() { //ler um arquivo binario e retorna o jogo 
     //ta bugando em algo
     char nome[100];
     FILE * arq;
@@ -230,11 +219,52 @@ void carregarArquivoJogo() { //ler um arquivo binario e retorna o jogo
             printf("Arquivo inválido!");
     }while(arq == NULL);
 
+    //realocar jogo
     Jogo jogo;
-    fread(&jogo, sizeof(Jogo), 1, arq);
+    fscanf(arq, "%s", jogo.nome);
+    char dif;
+    fscanf(arq, " %c", &dif);
+    switch (dif)
+    {
+        case 'F':
+            jogo.tentativasMax = 10;
+            jogo.dificuldade = 1;
+            break;
+        case 'M':
+            jogo.tentativasMax = 12;
+            jogo.dificuldade = 2;
+            break;
+        case 'D':
+            jogo.tentativasMax = 15;
+            jogo.dificuldade = 3;
+            break;
+    }
+    jogo.tamSequencia = jogo.dificuldade + 3; ///Dificuldade varia de 1 a 3 e as cores de 4 a 6, logo cores = dificuldade + 3
+    
+    jogo.tentativas = criaMatriz(jogo.tentativasMax, jogo.tamSequencia);
+    //alocar dinamicamente a sequencia correta e o historico
+    jogo.sequenciaCorreta = malloc((jogo.tamSequencia) * sizeof(int)); //PERGUNTAR: Uso (int *) (cast) ou nao?
+    jogo.historicoAcertos = malloc((jogo.tentativasMax) * sizeof(Acertos));
+
+    for (int i = 0; i < jogo.tamSequencia; i++) //preenche a sequencia
+    {
+        fscanf(arq, "%d", &jogo.sequenciaCorreta[i]);        
+    }
+
+    fscanf(arq, "%d", &jogo.numTentativas);
+    for (int i = 0; i < jogo.numTentativas; i++) //preenchendo as tentativas e os acertos antigos
+    {
+        for (int j = 0; j < jogo.tamSequencia; j++)
+        {
+            fscanf(arq, "%d", &jogo.tentativas[i][j]);
+        }
+        jogo.historicoAcertos[i] = verificaSequencia(jogo, i);        
+    }
+    
+
     fclose(arq);
     printf("Arquivo carregado com sucesso!\n");
-    
+    imprimeHistorico(jogo);
     jogar(jogo);
 }
 
@@ -279,7 +309,7 @@ void iniciarNovoJogo() {
     
     //alocar dinamicamente a sequencia correta e o historico
     jogo.sequenciaCorreta = malloc((jogo.tamSequencia) * sizeof(int)); //PERGUNTAR: Uso (int *) (cast) ou nao?
-    jogo.historicoAcertos = malloc((jogo.tamSequencia) * sizeof(Acertos));
+    jogo.historicoAcertos = malloc((jogo.tentativasMax) * sizeof(Acertos));
 
     for (int i = 0; i < jogo.tamSequencia; i++) //sorteia a sequencia
     {
@@ -306,13 +336,12 @@ void iniciarNovoJogo() {
         case 'S':
             salvarJogo(jogo);
         case 'N':
-            printf("Ótimo! Vamos jogar!\n");
             jogar(jogo);
             break;
     }
 }
 
-Acertos verificaSequencia(Jogo jogo) {
+Acertos verificaSequencia(Jogo jogo, int iTentativa) {
     Acertos acertos;
     acertos.tamanho = jogo.tamSequencia;
     acertos.posicaoCerta = 0;
@@ -321,10 +350,10 @@ Acertos verificaSequencia(Jogo jogo) {
     for (int i = 0; i < (jogo.tamSequencia); i++)
     {
         //jogo.tentativas[jogo.numTentativas - 1] é a ultima tentativa tentada
-        if(jogo.sequenciaCorreta[i] == jogo.tentativas[jogo.numTentativas - 1][i]) {
+        if(jogo.sequenciaCorreta[i] == jogo.tentativas[iTentativa][i]) {
             acertos.posicaoCerta++;
         } else if(verificarExistenciaNoVetor(jogo.sequenciaCorreta[i],
-             jogo.tentativas[jogo.numTentativas - 1], jogo.tamSequencia) == 1){
+             jogo.tentativas[iTentativa], jogo.tamSequencia) == 1){
             acertos.posicaoErrada++;
         }
     }
@@ -380,7 +409,7 @@ void imprimeCor(int cor) {
 
 void imprimeHistorico(Jogo jogo) {
     if(jogo.numTentativas > 0) {
-        printf("\n" BOLD("Resultado:") "\n");
+        printf("\n" BOLD("Resultados:") "\n");
         for (int i = 0; i < jogo.numTentativas; i++)
         {
             printf("Rodada %2d: ", i+1);
@@ -407,7 +436,8 @@ void imprimeHistorico(Jogo jogo) {
 }
 
 void jogar(Jogo jogo) {
-    printf("\n" BOLD("CORES DISPONÍVEIS:") "\n");
+    printf("\nOlá %s! Vamos jogar!\n", jogo.nome);
+    printf(BOLD("CORES DISPONÍVEIS:") "\n");
 
     printf(BG_RED(" 1 - Vermelho  ") "\n");
     printf(BG_BLUE(" 2 - Azul      ") "\n");
@@ -436,7 +466,8 @@ void jogar(Jogo jogo) {
 
                         imprimeHistorico(jogo);
                         jogo.numTentativas++;
-
+                        
+                        //repete o trem para voltar a opção do menu
                         printf("\nTentativa %d de %d\n", jogo.numTentativas, jogo.tentativasMax);
                         printf("Digite %d cores: ", jogo.tamSequencia);
                         scanf("%d", &jogo.tentativas[jogo.numTentativas - 1][i]);
@@ -450,13 +481,13 @@ void jogar(Jogo jogo) {
                 }
                 else {
                     if(jogo.tentativas[jogo.numTentativas - 1][i] > 6 || jogo.tentativas[jogo.numTentativas - 1][i] < 1)
-                        printf("%d é um número inválido! Digite outra cor: ", jogo.tentativas[jogo.numTentativas - 1][i]);
+                        printf("%d é um número inválido!Digite outra cor: \n", jogo.tentativas[jogo.numTentativas - 1][i]);
                 }
             } while(jogo.tentativas[jogo.numTentativas - 1][i] > 6 ||
                     jogo.tentativas[jogo.numTentativas - 1][i] < 1);
         }
 
-        jogo.historicoAcertos[jogo.numTentativas - 1] = verificaSequencia(jogo);
+        jogo.historicoAcertos[jogo.numTentativas - 1] = verificaSequencia(jogo, jogo.numTentativas - 1);
         
         imprimeHistorico(jogo);
     
