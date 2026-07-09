@@ -23,6 +23,10 @@ typedef struct {
     Acertos *historicoAcertos;
 } Jogo; //jogo em uma struct
 
+int menu(Jogo *);
+
+void comoJogar();
+
 void salvarJogo(Jogo);
 
 void carregarArquivoJogo();
@@ -43,6 +47,6 @@ void imprimeHistorico(Jogo);
 
 void jogar(Jogo);
 
-//TODO criar funcao pra jogar de verdade
+void finalizarJogo(Jogo);
 
 #endif

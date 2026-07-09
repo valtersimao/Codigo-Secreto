@@ -20,6 +20,7 @@
 #define ANSI_BG_COLOR_BLUE    "\x1b[44m"
 #define ANSI_BG_COLOR_MAGENTA "\x1b[45m"
 #define ANSI_BG_COLOR_ORANGE "\x1B[48;2;255;128;0m"
+#define ANSI_BG_COLOR_BLACK   "\x1b[40m"
 
 #define BOLD(string)       ANSI_BOLD             string ANSI_RESET
 #define BG_RED(string)     ANSI_BG_COLOR_RED     string ANSI_RESET
@@ -28,12 +29,13 @@
 #define BG_BLUE(string)    ANSI_BG_COLOR_BLUE    string ANSI_RESET
 #define BG_MAGENTA(string) ANSI_BG_COLOR_MAGENTA string ANSI_RESET
 #define BG_ORANGE(string)  ANSI_BG_COLOR_ORANGE  string ANSI_RESET
+#define BG_BLACK(string)   ANSI_BG_COLOR_BLACK   string ANSI_RESET
 //<--
 
 int verificarExistenciaNoVetor(int num, int vet[], int tam);
 
 int ** criaMatriz(int n, int m);
 
-int ** limpaMatriz(int **matriz, int n, int m);
+void limpaMatriz(int **matriz, int linhas);
 
 #endif
