@@ -13,7 +13,7 @@ typedef struct { //Salvar a quantidade de acertos e erros numa unica struct para
 } Acertos;
 
 typedef struct {
-    char nome[100];
+    char nome[51];
     int dificuldade;
     int tamSequencia;
     int * sequenciaCorreta;
@@ -48,5 +48,7 @@ void imprimeHistorico(Jogo);
 void jogar(Jogo);
 
 void finalizarJogo(Jogo);
+
+void jogarNovamente();
 
 #endif

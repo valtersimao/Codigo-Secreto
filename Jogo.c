@@ -3,6 +3,7 @@
 
 #include "Jogo.h"
 #include "Utilidades.h"
+#include "Ranking.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -32,41 +33,45 @@ int menu(Jogo * jogo) {
 
     switch (op)
     {
-    case 'X':
-        verificaJogoEmAndamento(jogo);
-        printf("Tchau!\n");
-        return 0;
-        break;
-    case 'N':
-        verificaJogoEmAndamento(jogo);
-        iniciarNovoJogo();
-        return 0;
-        break;
-    case 'C':
-        verificaJogoEmAndamento(jogo);
-        carregarJogo();
-        break;
-    case 'S':
-        if(jogo != NULL) {
-            salvarJogo(*jogo);
+        case 'X':
+            verificaJogoEmAndamento(jogo);
+            printf("Tchau!\n");
+            return 0;
+            break;
+        case 'N':
+            verificaJogoEmAndamento(jogo);
+            iniciarNovoJogo();
+            return 0;
+            break;
+        case 'C':
+            verificaJogoEmAndamento(jogo);
+            carregarJogo();
+            return 0;
+            break;
+        case 'S':
+            if(jogo != NULL) {
+                salvarJogo(*jogo);
+                return 1;
+            } else
+                printf("Não existe jogo a ser salvo!");
+            break;    
+        case 'R': //TODO
+            Ranking * r = carregarRanking();
+            exibirRanking(r);
+            free(r);
             return 1;
-        } else
-            printf("Não existe jogo a ser salvo!");
-        break;    
-    case 'R': //TODO
-        //ranking
-        break;
-    case 'A':
-        comoJogar();
-        return 1;
-        break;
+            break;
+        case 'A':
+            comoJogar();
+            return 1;
+            break;
 
-    default: //caso insira nenhuma opção válida retorna para o inicio do menu
-        printf("\n-------------------------\n");
-        printf("Comando Inválido!\nTente novamente!\n");
-        return menu(jogo);
+        default: //caso insira nenhuma opção válida retorna para o inicio do menu
+            printf("\n-------------------------\n");
+            printf("Comando Inválido!\nTente novamente!\n");
+            return menu(jogo);
     }
-
+    return -1; //algo de errado
 }
 
 void comoJogar() {
@@ -208,7 +213,7 @@ void carregarJogo() { //ler um arquivo binario e retorna o jogo
     FILE * arq;
 
     do{
-        printf("Insira o nome do arquivo do jogo: ");
+        printf("\nInsira o nome do arquivo do jogo a ser carregado: ");
         scanf("%s", nome);
 
         strcat(nome, ".cor");
@@ -369,7 +374,7 @@ bool verificaVitoria(Jogo jogo) {
     if(jogo.historicoAcertos[jogo.numTentativas - 1].posicaoCerta == jogo.tamSequencia)
         return true;
     else
-        return false; //ainda na ganhou o jogo
+        return false; //ainda nao ganhou o jogo
 }
 bool verificaDerrota(Jogo jogo) {
 
@@ -458,23 +463,18 @@ void jogar(Jogo jogo) {
             do {
                 scanf("%d", &jogo.tentativas[jogo.numTentativas - 1][i]);
                 if(jogo.tentativas[jogo.numTentativas - 1][i] == -1) { //abrir menu
-                    jogo.numTentativas--;
+                    jogo.numTentativas--; //para evitar bug ao salvar e ao imprimir histórico
                     printf("\n");
                     int op = menu(&jogo);
                     if (op == 1) { // continuar jogo
                         printf("\nVoltando para o jogo...\n");
 
                         imprimeHistorico(jogo);
+
                         jogo.numTentativas++;
-                        
-                        //repete o trem para voltar a opção do menu
+
                         printf("\nTentativa %d de %d\n", jogo.numTentativas, jogo.tentativasMax);
-                        printf("Digite %d cores: ", jogo.tamSequencia);
-                        scanf("%d", &jogo.tentativas[jogo.numTentativas - 1][i]);
-
-                        if(jogo.tentativas[jogo.numTentativas - 1][i] > 6 || jogo.tentativas[jogo.numTentativas - 1][i] < 1)
-                            printf("%d é um número inválido! Digite outra cor: ", jogo.tentativas[jogo.numTentativas - 1][i]);
-
+                        printf("Digite %d cores: ", jogo.tamSequencia);     
                     } else if (op == 0) {
                         return;
                     }
@@ -492,14 +492,38 @@ void jogar(Jogo jogo) {
         imprimeHistorico(jogo);
     
         if(verificaVitoria(jogo)) {
-            printf("Parabéns, %s! Você ganhou!\n",jogo.nome);
+            printf("\nParabéns, %s! Você ganhou o jogo em %d tentativas!\n",jogo.nome, jogo.numTentativas);
+
+            //salvar no ranking
+            Ranking r;
+            r.nivel = jogo.dificuldade;
+            r.tentativas = jogo.numTentativas;           
+            strcpy(r.nome, jogo.nome);
+
+            Ranking * ranking = carregarRanking();
+            int pos = atualizarRanking(ranking, r);
+            salvarRanking(ranking);
+            if(pos > 0)
+                printf("Você está ná %dº posição do ranking!\n", pos);
+            else
+                printf("Você não se encontra entre os 10 melhores jogadores!\n");
+            free(ranking); //libera o ponteiro
+            finalizarJogo(jogo);
+            jogarNovamente();
             return;
         }
 
     }while(!verificaDerrota(jogo));
 
-    printf("Você excedeu o limite de tentativas!\nFim de jogo!\n");
-    //mais algo pra fazer?
+    printf("\nVocê excedeu o limite de tentativas!\n");
+    printf("A sequência correta era: ");
+    for (int i = 0; i < jogo.tamSequencia; i++) {
+        imprimeCor(jogo.sequenciaCorreta[i]);
+    }
+    printf("\nFim de jogo!\n\n");
+    
+    finalizarJogo(jogo);
+    jogarNovamente();
     return;
 
 
@@ -509,4 +533,22 @@ void finalizarJogo(Jogo jogo) { //desalocar vetores dinamicos
     free(jogo.sequenciaCorreta);
     free(jogo.historicoAcertos);
     limpaMatriz(jogo.tentativas, jogo.tentativasMax);
+}
+
+void jogarNovamente() {
+    char op;
+    do{
+        printf("Deseja retornar ao menu? (s/n) ");
+        scanf(" %c", &op);
+        op = toupper(op);
+        if(op != 'S' && op != 'N')
+            printf("Resposta Inválida!\n");
+    } while (op != 'S' && op != 'N'); 
+    
+    if (op == 'S') {
+        int op;
+        do {
+            op = menu(NULL);
+        } while (op != 0);
+    }  
 }

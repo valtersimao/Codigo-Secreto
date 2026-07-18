@@ -6,6 +6,10 @@
 #include <stdio.h>
 
 int main() { //FUNÇÃO ATÉ ENTÃO PARA TESTES
-    menu(NULL);
+    int op;
+    do {
+        op = menu(NULL);
+    } while (op != 0);
+
     return 0;
 }
