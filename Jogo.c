@@ -55,7 +55,7 @@ int menu(Jogo * jogo) {
             } else
                 printf("Não existe jogo a ser salvo!");
             break;    
-        case 'R': //TODO
+        case 'R':
             Ranking * r = carregarRanking();
             exibirRanking(r);
             free(r);

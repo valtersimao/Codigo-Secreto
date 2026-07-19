@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 
-int main() { //FUNÇÃO ATÉ ENTÃO PARA TESTES
+int main() { //função main somente para deixar o jogo rodando
     int op;
     do {
         op = menu(NULL);
